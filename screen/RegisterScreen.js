@@ -18,17 +18,17 @@ import {
   const RegisterScreen = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [name, setName] = useState("");
+    const [username, setUsername] = useState("");
     const navigation = useNavigation();
     const handleRegister = () => {
       const user = {
-        name: name,
+        username: username,
         email: email,
         password: password,
       };
   
       // send a POST  request to the backend API to register the user
-      fetch("http://192.168.249.160:9000/register", {
+      fetch("http://192.168.195.160:9000/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +47,7 @@ import {
             "Registration Successful",
             "You have been registered successfully"
           );
-          setName(""); // Clear the name input
+          setUsername(""); // Clear the name input
           setEmail(""); // Clear the email input
           setPassword(""); // Clear the password input
         })
@@ -62,14 +62,12 @@ import {
     };
     return (
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "white", alignItems: "center",marginTop:50  }}
+        style={{ flex: 1, backgroundColor: "#3F3F4E", alignItems: "center",marginTop:50  }}
       >
         <View>
-          <Image
-            style={{ width: 150, height: 100 }}
-            source={{
-              uri: "https://assets.stickpng.com/thumbs/6160562276000b00045a7d97.png",
-            }}
+           <Image
+            style={{ width: 200, height: 60 }} // Adjusted to half the original size
+            source={require("../assets/images/Wn Resturants logo.png")}
           />
         </View>
   
@@ -79,8 +77,8 @@ import {
               style={{
                 fontSize: 17,
                 fontWeight: "bold",
-                marginTop: 12,
-                color: "#041E42",
+                marginTop: 60,
+                color: "#FFFFFF",
               }}
             >
               Register to your Account
@@ -96,7 +94,7 @@ import {
                 backgroundColor: "#D0D0D0",
                 paddingVertical: 5,
                 borderRadius: 5,
-                marginTop: 30,
+                marginTop: 10,
               }}
             >
               {/* <Ionicons
@@ -113,13 +111,13 @@ import {
                 color="gray"
               />
               <TextInput
-                value={name}
-                onChangeText={(text) => setName(text)}
+                value={username}
+                onChangeText={(text) => setUsername(text)}
                 style={{
                   color: "gray",
                   marginVertical: 10,
                   width: 300,
-                  fontSize: name ? 16 : 16,
+                  fontSize: username ? 16 : 16,
                 }}
                 placeholder="enter your name"
               />

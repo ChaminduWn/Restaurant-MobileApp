@@ -12,6 +12,7 @@ import {
   import { MaterialIcons } from "@expo/vector-icons";
   import { AntDesign } from "@expo/vector-icons";
   import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
   
   const LoginScreen = () => {
     const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ import {
     useEffect(() => {
       const checkLoginStatus = async () => {
         try {
-        //   const token = await AsyncStorage.getItem("authToken");
+          const token = await AsyncStorage.getItem("authToken");
   
           if (token) {
             navigation.replace("Main");
@@ -67,7 +68,7 @@ import {
     };
     return (
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "white", alignItems: "center",marginTop:50 }}
+        style={{ flex: 1, backgroundColor: "#3F3F4E", alignItems: "center",marginTop:50 }}
       >
         <View>
         <Image
@@ -83,8 +84,8 @@ import {
               style={{
                 fontSize: 17,
                 fontWeight: "bold",
-                marginTop: 80,
-                color: "#041E42",
+                marginTop: 60,
+                color: "#FFFFFF",
               }}
             >
               Login In to your Account
@@ -202,7 +203,7 @@ import {
             onPress={() => navigation.navigate("Register")}
             style={{ marginTop: 15 }}
           >
-            <Text style={{ textAlign: "center", color: "gray", fontSize: 16 }}>
+            <Text style={{ textAlign: "center", color: "white", fontSize: 16 }}>
               Don't have an account? Sign Up
             </Text>
           </Pressable>
