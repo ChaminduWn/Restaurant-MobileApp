@@ -6,12 +6,17 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
+  ScrollView,
+
   Alert,
+  TextInput,
 } from "react-native";
 
 const HomeScreen = () => {
   const [foodItems, setFoodItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(""); // To store the search query
+  const [filteredItems, setFilteredItems] = useState([]); // To store filtered food items
 
   useEffect(() => {
     const fetchFoodItems = async () => {
@@ -24,6 +29,7 @@ const HomeScreen = () => {
 
         const data = await response.json();
         setFoodItems(data.foodItems);
+        setFilteredItems(data.foodItems); // Initialize filteredItems with all foodItems
         setLoading(false);
       } catch (error) {
         setLoading(false);
@@ -33,6 +39,19 @@ const HomeScreen = () => {
 
     fetchFoodItems();
   }, []);
+
+  // Function to handle search input and filter food items
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    if (query === "") {
+      setFilteredItems(foodItems); // Show all items if search query is empty
+    } else {
+      const filtered = foodItems.filter((item) =>
+        item.foodName.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredItems(filtered);
+    }
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
@@ -57,14 +76,25 @@ const HomeScreen = () => {
   }
 
   return (
+
+    <ScrollView style={{ marginTop: 55, flex: 1, backgroundColor: "white" }}>
+
     <View style={styles.container}>
+      {/* Search Bar */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Search for food..."
+        value={searchQuery}
+        onChangeText={handleSearch}
+      />
       <FlatList
-        data={foodItems}
+        data={filteredItems}
         renderItem={renderItem}
         keyExtractor={(item) => item._id}
         contentContainerStyle={styles.list}
       />
     </View>
+    </ScrollView>
   );
 };
 
@@ -72,6 +102,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
+  },
+  searchBar: {
+    height: 40,
+    borderColor: "#6200EE",
+    borderWidth: 1,
+    borderRadius: 8,
+    margin: 16,
+    paddingHorizontal: 8,
+    fontSize: 16,
+    backgroundColor: "#ffffff",
   },
   list: {
     padding: 16,
