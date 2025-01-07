@@ -6,7 +6,7 @@ import bcryptjs from "bcryptjs";
 import cors from "cors";
 import { errorHandler } from "./utils/error.js";  // Adjust the path as needed
 import User from "./models/user.js"
-import FoodItem from './models/foodCategory.model.js';
+import FoodItem from "./models/foodCategory.model.js"
 
 
 import crypto from "crypto";
@@ -100,12 +100,22 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// Error Handler Middleware
-// app.use((err, req, res, next) => {
-//   const statusCode = err.statusCode || 500;
-//   const message = err.message || "Internal Server Error";
-//   res.status(statusCode).json({ message });
-// });
+
+app.get('/getAllFoods', async (req, res) => {
+  try {
+    const foodItems = await FoodItem.find(); // No query params, just get all items
+    res.json({ foodItems });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch food items" });
+  }
+});
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  res.status(statusCode).json({ message });
+});
+
+
 
 // Start Server
 app.listen(port, () => {
