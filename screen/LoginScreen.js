@@ -13,59 +13,45 @@ import {
   import { AntDesign } from "@expo/vector-icons";
   import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-  
+import { useDispatch } from 'react-redux';
+
+
   const LoginScreen = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
     const navigation = useNavigation();
-    useEffect(() => {
-      const checkLoginStatus = async () => {
-        try {
-          const token = await AsyncStorage.getItem("authToken");
-  
-          if (token) {
-            navigation.replace("Main");
-          }
-        } catch (err) {
-          console.log("error message", err);
-        }
-      };
-      checkLoginStatus();
-    }, []);
-    const handleLogin = () => {
+    const handleLogin = async () => {
       const user = {
         email: email,
         password: password,
       };
-  
-      fetch("http://192.168.249.160:9000/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Login failed");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          console.log(data);
-          const token = data.token;
-          AsyncStorage.setItem("authToken", token)
-            .then(() => {
-              navigation.replace("Main");
-            })
-            .catch((error) => {
-              console.error("Error saving token to AsyncStorage:", error);
-            });
-        })
-        .catch((error) => {
-          console.error("Error logging in:", error);
+    
+      try {
+        const response = await fetch("http://192.168.195.160:9000/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(user),
         });
+    
+        if (!response.ok) {
+          throw new Error("Invalid Email");
+        }
+    
+        const data = await response.json();
+        console.log(data);
+    
+        const token = data.token;
+        await AsyncStorage.setItem("authToken", token);
+        navigation.replace("Home");
+      } catch (error) {
+        Alert.alert("Login Error", error.message);
+        console.log(error);
+      }
     };
+    
     return (
       <SafeAreaView
         style={{ flex: 1, backgroundColor: "#3F3F4E", alignItems: "center",marginTop:50 }}

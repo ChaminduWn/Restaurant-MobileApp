@@ -18,6 +18,9 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+const jwt = require("jsonwebtoken");
+
+
 // MongoDB Connection
 mongoose
   .connect(
@@ -63,37 +66,35 @@ app.post("/register", async (req, res, next) => {
   }
 });
 
-// Signin Controller
-app.post("/login", async (req, res, next) => {
-  const { email, password } = req.body;
+const generateSecretKey = () => {
+  const secretKey = crypto.randomBytes(32).toString("hex");
 
-  if (!email || !password || email === "" || password === "") {
-    next(errorHandler(400, "All fields are required"));
-  }
+  return secretKey;
+};
 
+const secretKey = generateSecretKey();
+
+app.post("/login", async (req, res) => {
   try {
-    const validUser = await User.findOne({ email });
-    if (!validUser) {
-      return next(errorHandler(404, "User not found"));
-    }
-    const validPassword = bcryptjs.compareSync(password, validUser.password);
-    if (!validPassword) {
-      return next(errorHandler(400, "Invalid password"));
-    }
-    const token = jwt.sign(
-      { id: validUser._id, isAdmin: validUser.isAdmin },
-      process.env.JWT_SECRET
-    );
+    const { email, password } = req.body;
 
-    const { password: pass, ...rest } = validUser._doc;
+    //check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
 
-    res.status(200)
-      .cookie("access_token", token, {
-        httpOnly: true,
-      })
-      .json(rest);
+    //check if the password is correct
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    //generate a token
+    const token = jwt.sign({ userId: user._id }, secretKey);
+
+    res.status(200).json({ token });
   } catch (error) {
-    next(error);
+    res.status(500).json({ message: "Login Failed" });
   }
 });
 
