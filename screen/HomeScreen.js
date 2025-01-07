@@ -6,11 +6,12 @@ import {
   StyleSheet,
   Image,
   ActivityIndicator,
-  ScrollView,
-
   Alert,
   TextInput,
+  Pressable,
 } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+
 
 const HomeScreen = () => {
   const [foodItems, setFoodItems] = useState([]);
@@ -77,16 +78,30 @@ const HomeScreen = () => {
 
   return (
 
-    <ScrollView style={{ marginTop: 55, flex: 1, backgroundColor: "white" }}>
-
+    
     <View style={styles.container}>
-      {/* Search Bar */}
-      <TextInput
+
+<View
+          style={{
+            backgroundColor: "#00CED1",
+            padding: 10,
+            height:60,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          <TextInput
         style={styles.searchBar}
         placeholder="Search for food..."
         value={searchQuery}
+        
         onChangeText={handleSearch}
-      />
+    />
+          
+           
+          </View>
+      {/* Search Bar */}
+      
       <FlatList
         data={filteredItems}
         renderItem={renderItem}
@@ -94,16 +109,17 @@ const HomeScreen = () => {
         contentContainerStyle={styles.list}
       />
     </View>
-    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    marginTop:60,
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
   searchBar: {
+    width: "90%",
     height: 40,
     borderColor: "#6200EE",
     borderWidth: 1,
