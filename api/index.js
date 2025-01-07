@@ -1,13 +1,15 @@
 import express from "express";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
-import crypto from "crypto";
 
 import bcryptjs from "bcryptjs";
-import jwt from "jsonwebtoken";
 import cors from "cors";
 import { errorHandler } from "./utils/error.js";  // Adjust the path as needed
 import User from "./models/user.js"
+import FoodItem from './models/foodCategory.model.js';
+
+
+import crypto from "crypto";
 
 const app = express();
 const port = 9000;
@@ -18,7 +20,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const jwt = require("jsonwebtoken");
+import jwt  from "jsonwebtoken";
 
 
 // MongoDB Connection
@@ -50,12 +52,12 @@ app.post("/register", async (req, res, next) => {
     next(errorHandler(400, "All fields are required"));
   }
 
-  const hashedPassword = bcryptjs.hashSync(password, 10);
+  // const hashedPassword = bcryptjs.hashSync(password, 10);
 
   const newUser = new User({
     username,
     email,
-    password: hashedPassword,
+    password,
   });
 
   try {
@@ -99,11 +101,11 @@ app.post("/login", async (req, res) => {
 });
 
 // Error Handler Middleware
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || "Internal Server Error";
-  res.status(statusCode).json({ message });
-});
+// app.use((err, req, res, next) => {
+//   const statusCode = err.statusCode || 500;
+//   const message = err.message || "Internal Server Error";
+//   res.status(statusCode).json({ message });
+// });
 
 // Start Server
 app.listen(port, () => {
