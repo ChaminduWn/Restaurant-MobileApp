@@ -6,6 +6,8 @@ import LoginScreen from "../screen/LoginScreen.js";
 import RegisterScreen from "../screen/RegisterScreen.js";
 import HomeScreen from "../screen/HomeScreen.js";
 import CartScreen from "../screen/CartScreen.js";
+import ShoppingCartScreen from "../screen/ShoppingCartScreen.js";
+import PaymentScreen from "../screen/PaymentScreen.js";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -33,6 +35,19 @@ const StackNavigator = () => {
           component={CartScreen}
           options={{ headerShown: false }}
         />
+         <Stack.Screen
+          name="ShoppingCart"
+          component={ShoppingCartScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="payment"
+          component={PaymentScreen}
+          options={{ headerShown: false }}
+        />
+       
+
+
       </Stack.Navigator>
     </NavigationContainer>
   );
