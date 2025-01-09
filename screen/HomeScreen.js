@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { UserType } from "../UserContext";
+import jwt_decode from "jwt-decode";
 
 const HomeScreen = () => {
   const [foodItems, setFoodItems] = useState([]);
@@ -20,15 +22,14 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
+  const { userId, setUserId } = useContext(UserType);
 
   const fetchFoodItems = async () => {
     try {
       const response = await fetch("http://192.168.195.160:9000/getAllFoods");
-
       if (!response.ok) {
         throw new Error("Failed to fetch food items");
       }
-
       const data = await response.json();
       setFoodItems(data.foodItems);
       setFilteredItems(data.foodItems);
@@ -46,31 +47,32 @@ const HomeScreen = () => {
   };
 
   const addToCart = async (item) => {
-    const userId = await AsyncStorage.getItem("userId");
-    const cartKey = `cart_${userId}`;
-    const currentCartList = JSON.parse(
-      (await AsyncStorage.getItem(cartKey)) || "[]"
-    );
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      const cartKey = `cart_${userId}`;
+      const currentCartList = JSON.parse(
+        (await AsyncStorage.getItem(cartKey)) || "[]"
+      );
 
-    if (!currentCartList.some((cartItem) => cartItem.id === item._id)) {
-      currentCartList.push({
-        id: item._id,
-        quantity: 1,
-        price: item.price,
-        foodName: item.foodName,
-        image: item.image,
-      });
-    } else {
-      currentCartList.forEach((cartItem) => {
-        if (cartItem.id === item._id) {
-          cartItem.quantity += 1;
-        }
-      });
+      const existingItem = currentCartList.find((cartItem) => cartItem.id === item._id);
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        currentCartList.push({
+          id: item._id,
+          quantity: 1,
+          price: item.price,
+          foodName: item.foodName,
+          image: item.image,
+        });
+      }
+
+      await AsyncStorage.setItem(cartKey, JSON.stringify(currentCartList));
+      setCartCount(currentCartList.length);
+      Alert.alert("Success", "Item added to cart!");
+    } catch (error) {
+      Alert.alert("Error", "Failed to add item to cart!");
     }
-
-    await AsyncStorage.setItem(cartKey, JSON.stringify(currentCartList));
-    setCartCount(currentCartList.length);
-    Alert.alert("Success", "Item added to cart!");
   };
 
   const handleBuyNow = (item) => {
@@ -90,10 +92,30 @@ const HomeScreen = () => {
     }
   };
 
+  const fetchUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token) throw new Error("No auth token found!");
+
+      const decodedToken = jwt_decode(token);
+      const userId = decodedToken.userId;
+
+      if (!userId) throw new Error("Invalid token!");
+      setUserId(userId);
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to fetch user data!");
+    }
+  };
+
   useEffect(() => {
-    updateCartCount();
-    fetchFoodItems();
+    const initialize = async () => {
+      await fetchUser();
+      await updateCartCount();
+      await fetchFoodItems();
+    };
+    initialize();
   }, []);
+  console.log('User data:', userData); // Check the user data here
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
