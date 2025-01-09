@@ -13,7 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
-import { useDispatch } from "react-redux"; // Import useDispatch to dispatch Redux actions
+import { useDispatch, useSelector } from "react-redux"; // Import useDispatch to dispatch Redux actions
 import { addToCart } from "../redux/CartReducer"; // Import the Redux action to add items to the cart
 import { UserType } from "../UserContext";
 
@@ -25,7 +25,7 @@ const HomeScreen = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
   const { userId, setUserId } = useContext(UserType);
-  const cart = useSelector((state) => state.cart.cart);
+    const cart = useSelector((state) => state.cart.cart);
 
   const dispatch = useDispatch(); // Initialize useDispatch for dispatching actions
 

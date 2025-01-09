@@ -9,7 +9,11 @@ import {
   Alert,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
-import { removeFromCart, updateCartItem } from "../redux/CartReducer"; // Import Redux actions
+import { 
+    removeFromCart, 
+       incrementQuantity,
+     decrementQuantity} 
+     from "../redux/CartReducer"; // Import Redux actions
 
 const CartScreen = () => {
 
@@ -21,10 +25,9 @@ const CartScreen = () => {
   };
 
   const handleRemoveItem = (id) => {
-    dispatch(removeFromCart(id)); // Dispatch action to remove item
-    Alert.alert("Removed from Cart", "Item has been removed from your cart.");
+    dispatch(removeFromCart({ id }));
   };
-
+  
   const handleQuantityChange = (id, quantity) => {
     if (quantity <= 0) {
       Alert.alert(
@@ -33,7 +36,13 @@ const CartScreen = () => {
       );
       return;
     }
-    dispatch(updateCartItem({ id, quantity })); // Dispatch action to update quantity
+    
+    const currentQty = cart.find(item => item._id === id)?.quantity || 0;
+    if (quantity > currentQty) {
+      dispatch(incrementQuantity({ id }));
+    } else {
+      dispatch(decrementQuantity({ id }));
+    }
   };
 
   const renderItem = ({ item }) => (
