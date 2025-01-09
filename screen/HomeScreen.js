@@ -12,24 +12,31 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { UserType } from "../UserContext";
 import jwt_decode from "jwt-decode";
+import { useDispatch } from "react-redux"; // Import useDispatch to dispatch Redux actions
+import { addToCart } from "../redux/CartReducer"; // Import the Redux action to add items to the cart
+import { UserType } from "../UserContext";
 
 const HomeScreen = () => {
   const [foodItems, setFoodItems] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
+  const [cartCount, setCartCount] = useState();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
   const { userId, setUserId } = useContext(UserType);
+  const cart = useSelector((state) => state.cart.cart);
+
+  const dispatch = useDispatch(); // Initialize useDispatch for dispatching actions
 
   const fetchFoodItems = async () => {
     try {
       const response = await fetch("http://192.168.195.160:9000/getAllFoods");
+
       if (!response.ok) {
         throw new Error("Failed to fetch food items");
       }
+
       const data = await response.json();
       setFoodItems(data.foodItems);
       setFilteredItems(data.foodItems);
@@ -40,44 +47,14 @@ const HomeScreen = () => {
     }
   };
 
-  const updateCartCount = async () => {
-    const userId = await AsyncStorage.getItem("userId");
-    const cart = JSON.parse((await AsyncStorage.getItem(`cart_${userId}`)) || "[]");
-    setCartCount(cart.length);
-  };
-
-  const addToCart = async (item) => {
-    try {
-      const userId = await AsyncStorage.getItem("userId");
-      const cartKey = `cart_${userId}`;
-      const currentCartList = JSON.parse(
-        (await AsyncStorage.getItem(cartKey)) || "[]"
-      );
-
-      const existingItem = currentCartList.find((cartItem) => cartItem.id === item._id);
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        currentCartList.push({
-          id: item._id,
-          quantity: 1,
-          price: item.price,
-          foodName: item.foodName,
-          image: item.image,
-        });
-      }
-
-      await AsyncStorage.setItem(cartKey, JSON.stringify(currentCartList));
-      setCartCount(currentCartList.length);
-      Alert.alert("Success", "Item added to cart!");
-    } catch (error) {
-      Alert.alert("Error", "Failed to add item to cart!");
-    }
+  const handleAddToCart = (item) => {
+    dispatch(addToCart(item)); // Dispatch the Redux action to add the item to the cart
+    Alert.alert("Added to Cart", `${item.foodName} has been added to your cart.`);
   };
 
   const handleBuyNow = (item) => {
-    addToCart(item);
-    navigation.navigate("ShoppingCart");
+    dispatch(addToCart(item)); // Add the item to the cart
+    navigation.navigate("ShoppingCart"); // Navigate to the Cart screen
   };
 
   const handleSearch = (query) => {
@@ -92,30 +69,17 @@ const HomeScreen = () => {
     }
   };
 
-  const fetchUser = async () => {
-    try {
-      const token = await AsyncStorage.getItem("authToken");
-      if (!token) throw new Error("No auth token found!");
-
-      const decodedToken = jwt_decode(token);
-      const userId = decodedToken.userId;
-
-      if (!userId) throw new Error("Invalid token!");
-      setUserId(userId);
-    } catch (error) {
-      Alert.alert("Error", error.message || "Failed to fetch user data!");
-    }
-  };
-
   useEffect(() => {
-    const initialize = async () => {
-      await fetchUser();
-      await updateCartCount();
-      await fetchFoodItems();
-    };
-    initialize();
+    fetchUser();
+    fetchFoodItems();
   }, []);
-  console.log('User data:', userData); // Check the user data here
+
+  const fetchUser = async () => {
+    const token = await AsyncStorage.getItem("authToken");
+    const decodedToken = jwt_decode(token);
+    const userId = decodedToken.userId;
+    setUserId(userId);
+  };
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
@@ -133,10 +97,16 @@ const HomeScreen = () => {
 
         {/* Button Section */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => addToCart(item)}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleAddToCart(item)}
+          >
             <Text style={styles.buttonText}>Add to Cart</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => handleBuyNow(item)}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => handleBuyNow(item)}
+          >
             <Text style={styles.buttonText}>Buy Now</Text>
           </TouchableOpacity>
         </View>

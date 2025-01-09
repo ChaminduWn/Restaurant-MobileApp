@@ -1,129 +1,99 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
+  Image,
   TouchableOpacity,
   Alert,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
+import { useSelector, useDispatch } from "react-redux"; // Import Redux hooks
+import { removeFromCart, updateCartItem } from "../redux/CartReducer"; // Import Redux actions
 
 const CartScreen = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const navigation = useNavigation();
 
-  // Fetch cart items for the logged-in user
-  const fetchCartItems = async () => {
-    try {
-      const userData = await AsyncStorage.getItem("userData");
-      const user = userData && JSON.parse(userData);
-      const userId = user?._id;
+  const cart = useSelector((state) => state.cart.cart); // Get cart items from Redux
+  const dispatch = useDispatch();
 
-      if (!userId) {
-        Alert.alert("Error", "User not logged in. Please login to view the cart.");
-        navigation.navigate("Login");
-        return;
-      }
-
-      const token = await AsyncStorage.getItem("token");
-      const response = await fetch(`http://192.168.1.1:9000/api/cart/getCart/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setCartItems(data.items || []);
-      } else {
-        console.error("Failed to fetch cart items");
-      }
-    } catch (error) {
-      console.error("Error fetching cart items:", error);
-    }
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
-  // Update the quantity of a cart item
-  const updateQuantity = async (itemId, quantity) => {
-    if (quantity < 1) {
-      Alert.alert("Error", "Quantity cannot be less than 1.");
+  const handleRemoveItem = (id) => {
+    dispatch(removeFromCart(id)); // Dispatch action to remove item
+    Alert.alert("Removed from Cart", "Item has been removed from your cart.");
+  };
+
+  const handleQuantityChange = (id, quantity) => {
+    if (quantity <= 0) {
+      Alert.alert(
+        "Invalid Quantity",
+        "Quantity must be at least 1. To remove the item, use the remove button."
+      );
       return;
     }
-
-    try {
-      const token = await AsyncStorage.getItem("token");
-      const response = await fetch(
-        `http://192.168.1.1:9000/api/cart/updateCartItem/${itemId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ quantity }),
-        }
-      );
-
-      if (response.ok) {
-        fetchCartItems(); // Reload cart items after updating
-      } else {
-        console.error("Failed to update cart item");
-      }
-    } catch (error) {
-      console.error("Error updating cart item:", error);
-    }
+    dispatch(updateCartItem({ id, quantity })); // Dispatch action to update quantity
   };
-
-  // Navigate to the payment page
-  const proceedToPayment = () => {
-    navigation.navigate("Payment");
-  };
-
-  // Fetch cart items on component mount
-  useEffect(() => {
-    fetchCartItems();
-  }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.cartItem}>
-      <Text style={styles.foodName}>{item.foodId.foodName}</Text>
-      <Text style={styles.foodPrice}>Price: LKR {item.foodId.price.toFixed(2)}</Text>
-      <View style={styles.quantityContainer}>
-        <TouchableOpacity
-          style={styles.quantityButton}
-          onPress={() => updateQuantity(item.foodId._id, item.quantity - 1)}
-        >
-          <Text style={styles.quantityButtonText}>-</Text>
-        </TouchableOpacity>
-        <Text style={styles.quantity}>{item.quantity}</Text>
-        <TouchableOpacity
-          style={styles.quantityButton}
-          onPress={() => updateQuantity(item.foodId._id, item.quantity + 1)}
-        >
-          <Text style={styles.quantityButtonText}>+</Text>
-        </TouchableOpacity>
+    <View style={styles.card}>
+      {/* Image Section */}
+      <Image source={{ uri: item.image }} style={styles.image} />
+
+      {/* Details Section */}
+      <View style={styles.infoContainer}>
+        <Text style={styles.foodName}>{item.foodName}</Text>
+        <Text style={styles.price}>LKR {item.price}</Text>
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() => handleQuantityChange(item.id, item.quantity - 1)}
+          >
+            <Text style={styles.quantityButtonText}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantity}>{item.quantity}</Text>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() => handleQuantityChange(item.id, item.quantity + 1)}
+          >
+            <Text style={styles.quantityButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* Remove Button */}
+      <TouchableOpacity
+        style={styles.removeButton}
+        onPress={() => handleRemoveItem(item.id)}
+      >
+        <Text style={styles.removeButtonText}>Remove</Text>
+      </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Your Cart</Text>
-      {cartItems.length === 0 ? (
-        <Text style={styles.emptyCartText}>Your cart is empty</Text>
+      {cart.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Your cart is empty!</Text>
+        </View>
       ) : (
-        <FlatList
-          data={cartItems}
-          keyExtractor={(item) => item.foodId._id}
-          renderItem={renderItem}
-          contentContainerStyle={styles.cartList}
-        />
+        <>
+          <FlatList
+            data={cart}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.list}
+          />
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total: LKR {calculateTotal()}</Text>
+            <TouchableOpacity style={styles.checkoutButton}>
+              <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
+            </TouchableOpacity>
+          </View>
+        </>
       )}
-      <TouchableOpacity style={styles.paymentButton} onPress={proceedToPayment}>
-        <Text style={styles.paymentButtonText}>Proceed to Payment</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -132,30 +102,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
-    padding: 16,
+    paddingHorizontal: 16,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
+  list: {
+    paddingVertical: 16,
+  },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     marginBottom: 16,
-  },
-  cartList: {
-    paddingBottom: 16,
-  },
-  cartItem: {
-    backgroundColor: "#ffffff",
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    elevation: 2,
+    padding: 10,
+    elevation: 3,
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+  },
+  infoContainer: {
+    flex: 1,
+    marginLeft: 10,
   },
   foodName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  foodPrice: {
     fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  price: {
+    fontSize: 14,
     color: "#757575",
     marginBottom: 8,
   },
@@ -164,36 +140,61 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   quantityButton: {
-    backgroundColor: "#FF6347",
-    padding: 8,
+    backgroundColor: "#FFC72C",
+    padding: 5,
     borderRadius: 5,
+    marginHorizontal: 5,
   },
   quantityButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
+    color: "#fff",
     fontWeight: "bold",
   },
   quantity: {
     fontSize: 16,
-    marginHorizontal: 16,
+    fontWeight: "bold",
   },
-  emptyCartText: {
-    fontSize: 16,
-    color: "#757575",
-    textAlign: "center",
-    marginTop: 16,
+  removeButton: {
+    backgroundColor: "#E53935",
+    padding: 8,
+    borderRadius: 5,
   },
-  paymentButton: {
-    backgroundColor: "#4CAF50",
+  removeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  totalContainer: {
     padding: 16,
+    backgroundColor: "#fff",
     borderRadius: 8,
-    alignItems: "center",
-    marginTop: 16,
+    marginBottom: 16,
+    elevation: 3,
   },
-  paymentButtonText: {
-    color: "#ffffff",
+  totalText: {
     fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  checkoutButton: {
+    backgroundColor: "#FFC72C",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  checkoutButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#757575",
   },
 });
 
