@@ -124,11 +124,15 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
+       <View style={styles.topBar}>
+              <Text style={styles.topBarTitle}>WN Foods And Resturants</Text>
+              
+            </View>
+            
       {/* Search Bar */}
       <View
         style={{
           backgroundColor: "#FFC72C",
-          padding: 10,
           height: 60,
           flexDirection: "row",
           alignItems: "center",
@@ -154,14 +158,30 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 60,
+    marginTop: 30,
+    
     flex: 1,
     backgroundColor: "#f5f5f5",
+  },
+
+  topBar: {
+    
+    backgroundColor: "#fff",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+  },
+  topBarTitle: {
+    color: "#1c1c1c",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   searchBar: {
     width: "90%",
     height: 40,
-    borderColor: "#6200EE",
+    borderColor: "#1C1C1C",
     borderWidth: 1,
     borderRadius: 8,
     margin: 16,
@@ -171,8 +191,11 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 16,
+    
+    
   },
   card: {
+    
     backgroundColor: "#ffffff",
     borderRadius: 8,
     marginBottom: 16,
