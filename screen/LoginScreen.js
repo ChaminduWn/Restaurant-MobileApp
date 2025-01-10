@@ -7,8 +7,9 @@ import {
   KeyboardAvoidingView,
   TextInput,
   Pressable,
+  Alert,
 } from "react-native";
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -19,42 +20,49 @@ const LoginScreen = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
+
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
         const token = await AsyncStorage.getItem("authToken");
-
         if (token) {
           navigation.replace("Main");
         }
       } catch (err) {
-        console.log("error message", err);
+        console.log("Error checking login status:", err);
       }
     };
     checkLoginStatus();
   }, []);
+
   const handleLogin = () => {
-    const user = {
-      email: email,
-      password: password,
-    };
+    const user = { email, password };
 
     axios
       .post("http://192.168.195.160:9000/login", user)
       .then((response) => {
-        console.log(response);
-        const token = response.data.token;
-        AsyncStorage.setItem("authToken", token);
-        navigation.replace("Main");
+        const token = response.data.token; // Extract token from the response
+        console.log("Received token:", token);
+
+        // Save the token to AsyncStorage
+        AsyncStorage.setItem("authToken", token)
+          .then(() => {
+            console.log("Token saved successfully");
+            navigation.replace("Main"); // Navigate to Main screen
+          })
+          .catch((error) => {
+            console.error("Error saving token:", error);
+          });
       })
       .catch((error) => {
-        Alert.alert("Login Error", "Invalid Email");
-        console.log(error);
+        console.error("Login failed:", error.response?.data || error.message);
+        Alert.alert("Login Error", "Invalid Email or Password");
       });
   };
+
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: "white", alignItems: "center",marginTop:50 }}
+      style={{ flex: 1, backgroundColor: "white", alignItems: "center", marginTop: 50 }}
     >
       <View>
         <Image
@@ -107,7 +115,7 @@ const LoginScreen = () => {
                 width: 300,
                 fontSize: email ? 16 : 16,
               }}
-              placeholder="enter your Email"
+              placeholder="Enter your Email"
             />
           </View>
         </View>
@@ -141,7 +149,7 @@ const LoginScreen = () => {
                 width: 300,
                 fontSize: password ? 16 : 16,
               }}
-              placeholder="enter your Password"
+              placeholder="Enter your Password"
             />
           </View>
         </View>

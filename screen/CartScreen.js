@@ -1,129 +1,145 @@
 import React, { useContext, useEffect } from "react";
 import {
- View,
- Text,
- FlatList,
- StyleSheet,
- Image,
- TouchableOpacity,
- Alert,
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from '@react-navigation/native';
 import { 
-   removeFromCart, 
-   incrementQuantity,
-   decrementQuantity
+  removeFromCart, 
+  incrementQuantity,
+  decrementQuantity
 } from "../redux/CartReducer";
 import { UserType } from "../UserContext";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwt_decode from 'jwt-decode';
 
 const CartScreen = () => {
- const cart = useSelector((state) => state.cart.cart);
- const dispatch = useDispatch();
- const navigation = useNavigation();
- const { userId, setUserId } = useContext(UserType);
+  const cart = useSelector((state) => state.cart.cart);
+  const dispatch = useDispatch();
+  const navigation = useNavigation();
+  const { userId, setUserId } = useContext(UserType);
 
-
- useEffect(() => {
+  useEffect(() => {
     const fetchUser = async() => {
-        const token = await AsyncStorage.getItem("authToken");
-        const decodedToken = jwt_decode(token);
-        const userId = decodedToken.userId;
-        setUserId(userId)
+      const token = await AsyncStorage.getItem("authToken");
+      const decodedToken = jwt_decode(token);
+      const userId = decodedToken.userId;
+      setUserId(userId)
     }
 
     fetchUser();
   },[]);
 
- const calculateTotal = () => {
-   return cart.reduce((total, item) => total + item.price * item.quantity, 0);
- };
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
 
- const handleRemoveItem = (id) => {
-   dispatch(removeFromCart({ id }));
-   Alert.alert("Success", "Item removed from cart");
- };
+  // Updated handleCheckout function with complete data passing
+  const handleCheckout = () => {
+    // Create a structured order object with all necessary data
+    const orderData = {
+      userId: userId,
+      items: cart.map(item => ({
+        foodId: item._id,
+        foodName: item.foodName,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.image
+      })),
+      totalAmount: calculateTotal(),
+      orderDate: new Date().toISOString(),
+    };
 
- const handleIncrementQuantity = (id) => {
-   dispatch(incrementQuantity({ id }));
- };
+    // Navigate to payment screen with complete order data
+    navigation.navigate('payment', {
+      orderData: orderData
+    });
+  };
 
- const handleDecrementQuantity = (id) => {
-   const item = cart.find(item => item._id === id);
-   if (item && item.quantity > 1) {
-     dispatch(decrementQuantity({ id }));
-   } else {
-     handleRemoveItem(id);
-   }
- };
+  // Rest of your component code remains the same...
+  const handleRemoveItem = (id) => {
+    dispatch(removeFromCart({ id }));
+    Alert.alert("Success", "Item removed from cart");
+  };
 
- const handleCheckout = () => {
-   navigation.navigate('payment', {
-     cartItems: cart,
-     totalPrice: calculateTotal()
-   });
- };
+  const handleIncrementQuantity = (id) => {
+    dispatch(incrementQuantity({ id }));
+  };
 
- const renderItem = ({ item }) => (
-   <View style={styles.card}>
-     <Image source={{ uri: item.image }} style={styles.image} />
-     <View style={styles.infoContainer}>
-       <Text style={styles.foodName}>{item.foodName}</Text>
-       <Text style={styles.price}>LKR {item.price}</Text>
-       <View style={styles.quantityContainer}>
-         <TouchableOpacity
-           style={styles.quantityButton}
-           onPress={() => handleDecrementQuantity(item._id)}
-         >
-           <Text style={styles.quantityButtonText}>-</Text>
-         </TouchableOpacity>
-         <Text style={styles.quantity}>{item.quantity}</Text>
-         <TouchableOpacity
-           style={styles.quantityButton}
-           onPress={() => handleIncrementQuantity(item._id)}
-         >
-           <Text style={styles.quantityButtonText}>+</Text>
-         </TouchableOpacity>
-       </View>
-     </View>
+  const handleDecrementQuantity = (id) => {
+    const item = cart.find(item => item._id === id);
+    if (item && item.quantity > 1) {
+      dispatch(decrementQuantity({ id }));
+    } else {
+      handleRemoveItem(id);
+    }
+  };
 
-     <TouchableOpacity
-       style={styles.removeButton}
-       onPress={() => handleRemoveItem(item._id)}
-     >
-       <Text style={styles.removeButtonText}>Remove</Text>
-     </TouchableOpacity>
-   </View>
- );
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.image }} style={styles.image} />
+      <View style={styles.infoContainer}>
+        <Text style={styles.foodName}>{item.foodName}</Text>
+        <Text style={styles.price}>LKR {item.price}</Text>
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() => handleDecrementQuantity(item._id)}
+          >
+            <Text style={styles.quantityButtonText}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantity}>{item.quantity}</Text>
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() => handleIncrementQuantity(item._id)}
+          >
+            <Text style={styles.quantityButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
 
- return (
-   <View style={styles.container}>
-     {cart.length === 0 ? (
-       <View style={styles.emptyContainer}>
-         <Text style={styles.emptyText}>Your cart is empty!</Text>
-       </View>
-     ) : (
-       <>
-         <FlatList
-           data={cart}
-           renderItem={renderItem}
-           keyExtractor={(item) => item._id}
-           contentContainerStyle={styles.list}
-         />
-         <View style={styles.totalContainer}>
-           <Text style={styles.totalText}>Total: LKR {calculateTotal()}</Text>
-           <TouchableOpacity 
-             style={styles.checkoutButton}
-             onPress={handleCheckout}
-           >
-             <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
-           </TouchableOpacity>
-         </View>
-       </>
-     )}
-   </View>
- );
+      <TouchableOpacity
+        style={styles.removeButton}
+        onPress={() => handleRemoveItem(item._id)}
+      >
+        <Text style={styles.removeButtonText}>Remove</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {cart.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Your cart is empty!</Text>
+        </View>
+      ) : (
+        <>
+          <FlatList
+            data={cart}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={styles.list}
+          />
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total: LKR {calculateTotal()}</Text>
+            <TouchableOpacity 
+              style={styles.checkoutButton}
+              onPress={handleCheckout}
+            >
+              <Text style={styles.checkoutButtonText}>Proceed to Checkout</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
