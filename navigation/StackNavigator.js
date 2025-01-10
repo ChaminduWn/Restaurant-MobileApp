@@ -13,6 +13,7 @@ import ProfileScreen from "../screen/ProfileScreen.js";
 import { Entypo } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
+import PaynowScreen from "../screen/PaynowScreen.js";
 
 
 const StackNavigator = () => {
@@ -98,6 +99,11 @@ const StackNavigator = () => {
         />
         <Stack.Screen
           name="payment"
+          component={PaynowScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="PaymentReceipt"
           component={PaymentScreen}
           options={{ headerShown: false }}
         />
