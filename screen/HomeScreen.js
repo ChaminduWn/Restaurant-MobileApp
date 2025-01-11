@@ -13,48 +13,127 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwt_decode from "jwt-decode";
-import { useDispatch, useSelector } from "react-redux"; // Import useDispatch to dispatch Redux actions
-import { addToCart } from "../redux/CartReducer"; // Import the Redux action to add items to the cart
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../redux/CartReducer";
 import { UserType } from "../UserContext";
 
 const HomeScreen = () => {
   const [foodItems, setFoodItems] = useState([]);
-  const [cartCount, setCartCount] = useState();
-  const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredItems, setFilteredItems] = useState([]);
   const { userId, setUserId } = useContext(UserType);
-    const cart = useSelector((state) => state.cart.cart);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const cart = useSelector((state) => state.cart.cart);
 
-  const dispatch = useDispatch(); // Initialize useDispatch for dispatching actions
+  const fetchUser = async () => {
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+      const storedUserId = await AsyncStorage.getItem("userId");
+      
+      console.log("Retrieved token:", token);
+      console.log("Retrieved stored userId:", storedUserId);
+
+      if (token) {
+        const decodedToken = jwt_decode(token);
+        console.log("Decoded token:", decodedToken);
+        
+        if (decodedToken.userId) {
+          console.log("Setting userId from token:", decodedToken.userId);
+          setUserId(decodedToken.userId);
+        } else if (storedUserId) {
+          console.log("Setting userId from storage:", storedUserId);
+          setUserId(storedUserId);
+        }
+      } else {
+        console.log("No token found");
+        navigation.navigate("Login");
+      }
+    } catch (error) {
+      console.log("Error in fetchUser:", error);
+      Alert.alert("Error", "Failed to fetch user data");
+    }
+  };
 
   const fetchFoodItems = async () => {
     try {
       const response = await fetch("http://192.168.195.160:9000/getAllFoods");
-
       if (!response.ok) {
         throw new Error("Failed to fetch food items");
       }
 
       const data = await response.json();
+      console.log("Fetched Food Items:", data);
       setFoodItems(data.foodItems);
       setFilteredItems(data.foodItems);
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      Alert.alert("Error", error.message);
+      console.log("Fetch Food Items Error:", error.message);
+      Alert.alert("Error", "Failed to fetch food items");
     }
   };
 
-  const handleAddToCart = (item) => {
-    dispatch(addToCart(item)); // Dispatch the Redux action to add the item to the cart
-    Alert.alert("Added to Cart", `${item.foodName} has been added to your cart.`);
+  useEffect(() => {
+    const initialize = async () => {
+      await fetchUser();
+      await fetchFoodItems();
+    };
+    
+    initialize();
+  }, []);
+
+  // Add this useEffect to monitor userId changes
+  useEffect(() => {
+    console.log("Current userId in context:", userId);
+  }, [userId]);
+
+  const handleAddToCart = async (item) => {
+    try {
+      console.log("Current userId when adding to cart:", userId);
+      
+      if (!userId) {
+        const storedUserId = await AsyncStorage.getItem("userId");
+        if (storedUserId) {
+          console.log("Retrieved userId from storage:", storedUserId);
+          setUserId(storedUserId);
+          dispatch(addToCart({ ...item, userId: storedUserId }));
+          Alert.alert("Success", `${item.foodName} has been added to your cart.`);
+        } else {
+          Alert.alert("Error", "Please log in to add items to the cart.");
+          navigation.navigate("Login");
+        }
+      } else {
+        dispatch(addToCart({ ...item, userId }));
+        Alert.alert("Success", `${item.foodName} has been added to your cart.`);
+      }
+    } catch (error) {
+      console.log("Error adding to cart:", error);
+      Alert.alert("Error", "Failed to add item to cart");
+    }
   };
 
-  const handleBuyNow = (item) => {
-    dispatch(addToCart(item)); // Add the item to the cart
-    navigation.navigate("ShoppingCart"); // Navigate to the Cart screen
+  const handleBuyNow = async (item) => {
+    try {
+      if (!userId) {
+        const storedUserId = await AsyncStorage.getItem("userId");
+        if (storedUserId) {
+          setUserId(storedUserId);
+          dispatch(addToCart({ ...item, userId: storedUserId }));
+          navigation.navigate("ShoppingCart", { userId: storedUserId });
+        } else {
+          Alert.alert("Error", "Please log in to proceed with purchase.");
+          navigation.navigate("Login");
+        }
+      } else {
+        dispatch(addToCart({ ...item, userId }));
+        navigation.navigate("ShoppingCart", { userId });
+      }
+    } catch (error) {
+      console.log("Error in buy now:", error);
+      Alert.alert("Error", "Failed to process purchase");
+    }
   };
 
   const handleSearch = (query) => {
@@ -69,33 +148,16 @@ const HomeScreen = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUser();
-    fetchFoodItems();
-  }, []);
-
-  const fetchUser = async () => {
-    const token = await AsyncStorage.getItem("authToken");
-    const decodedToken = jwt_decode(token);
-    const userId = decodedToken.userId;
-    setUserId(userId);
-  };
-
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <View style={styles.horizontalContainer}>
-        {/* Image Section */}
         <Image source={{ uri: item.image }} style={styles.image} />
-
-        {/* Details Section */}
         <View style={styles.infoContainer}>
           <Text style={styles.foodName}>{item.foodName}</Text>
           <Text style={styles.category}>{item.category}</Text>
           <Text style={styles.description}>{item.description}</Text>
           <Text style={styles.price}>LKR {item.price}</Text>
         </View>
-
-        {/* Button Section */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.button}
@@ -124,20 +186,11 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-       <View style={styles.topBar}>
-              <Text style={styles.topBarTitle}>WN Foods And Resturants</Text>
-              
-            </View>
-            
-      {/* Search Bar */}
-      <View
-        style={{
-          backgroundColor: "#FFC72C",
-          height: 60,
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
+      <View style={styles.topBar}>
+        <Text style={styles.topBarTitle}>WN Foods And Restaurants</Text>
+      </View>
+
+      <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchBar}
           placeholder="Search for food..."
@@ -159,13 +212,10 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     marginTop: 30,
-    
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
-
   topBar: {
-    
     backgroundColor: "#fff",
     paddingVertical: 16,
     paddingHorizontal: 16,
@@ -177,6 +227,12 @@ const styles = StyleSheet.create({
     color: "#1c1c1c",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  searchContainer: {
+    backgroundColor: "#FFC72C",
+    height: 60,
+    flexDirection: "row",
+    alignItems: "center",
   },
   searchBar: {
     width: "90%",
@@ -191,11 +247,8 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 16,
-    
-    
   },
   card: {
-    
     backgroundColor: "#ffffff",
     borderRadius: 8,
     marginBottom: 16,

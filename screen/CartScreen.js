@@ -9,60 +9,44 @@ import {
   Alert,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigation } from '@react-navigation/native';
-import { 
-  removeFromCart, 
+import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  removeFromCart,
   incrementQuantity,
-  decrementQuantity
+  decrementQuantity,
 } from "../redux/CartReducer";
-import { UserType } from "../UserContext";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import jwt_decode from 'jwt-decode';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import jwt_decode from "jwt-decode";
 
 const CartScreen = () => {
   const cart = useSelector((state) => state.cart.cart);
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { userId, setUserId } = useContext(UserType);
+  const route = useRoute();
+
+  const [userId, setUserId] = React.useState(null);
 
   useEffect(() => {
-    const fetchUser = async() => {
+    const fetchUser = async () => {
       const token = await AsyncStorage.getItem("authToken");
-      const decodedToken = jwt_decode(token);
-      const userId = decodedToken.userId;
-      setUserId(userId)
-    }
+      if (token) {
+        const decodedToken = jwt_decode(token);
+        setUserId(decodedToken.userId);
+      }
+    };
 
-    fetchUser();
-  },[]);
+    // Fetch userId from token if not passed from HomeScreen
+    if (!userId && route.params?.userId) {
+      setUserId(route.params.userId);
+    } else {
+      fetchUser();
+    }
+  }, [route.params?.userId]);
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
 
-  // Updated handleCheckout function with complete data passing
-  const handleCheckout = () => {
-    // Create a structured order object with all necessary data
-    const orderData = {
-      userId: userId,
-      items: cart.map(item => ({
-        foodId: item._id,
-        foodName: item.foodName,
-        quantity: item.quantity,
-        price: item.price,
-        image: item.image
-      })),
-      totalAmount: calculateTotal(),
-      orderDate: new Date().toISOString(),
-    };
-
-    // Navigate to payment screen with complete order data
-    navigation.navigate('payment', {
-      orderData: orderData
-    });
-  };
-
-  // Rest of your component code remains the same...
   const handleRemoveItem = (id) => {
     dispatch(removeFromCart({ id }));
     Alert.alert("Success", "Item removed from cart");
@@ -73,12 +57,34 @@ const CartScreen = () => {
   };
 
   const handleDecrementQuantity = (id) => {
-    const item = cart.find(item => item._id === id);
+    const item = cart.find((item) => item._id === id);
     if (item && item.quantity > 1) {
       dispatch(decrementQuantity({ id }));
     } else {
       handleRemoveItem(id);
     }
+  };
+
+  const handleCheckout = () => {
+    if (!userId) {
+      Alert.alert("Error", "User ID not found. Please log in.");
+      return;
+    }
+
+    const orderData = {
+      userId: userId,
+      items: cart.map((item) => ({
+        foodId: item._id,
+        foodName: item.foodName,
+        quantity: item.quantity,
+        price: item.price,
+        image: item.image,
+      })),
+      totalAmount: calculateTotal(),
+      orderDate: new Date().toISOString(),
+    };
+
+    navigation.navigate("Payment", { orderData: orderData });
   };
 
   const renderItem = ({ item }) => (
@@ -129,7 +135,7 @@ const CartScreen = () => {
           />
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Total: LKR {calculateTotal()}</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.checkoutButton}
               onPress={handleCheckout}
             >
@@ -143,103 +149,103 @@ const CartScreen = () => {
 };
 
 const styles = StyleSheet.create({
- container: {
-   flex: 1,
-   backgroundColor: "#f5f5f5",
-   paddingHorizontal: 16,
- },
- list: {
-   paddingVertical: 16,
- },
- card: {
-   flexDirection: "row",
-   alignItems: "center", 
-   backgroundColor: "#fff",
-   marginBottom: 16,
-   borderRadius: 8,
-   padding: 10,
-   elevation: 3,
- },
- image: {
-   width: 80,
-   height: 80,
-   borderRadius: 8,
- },
- infoContainer: {
-   flex: 1,
-   marginLeft: 10,
- },
- foodName: {
-   fontSize: 16,
-   fontWeight: "bold",
-   marginBottom: 4,
- },
- price: {
-   fontSize: 14,
-   color: "#757575",
-   marginBottom: 8,
- },
- quantityContainer: {
-   flexDirection: "row",
-   alignItems: "center",
- },
- quantityButton: {
-   backgroundColor: "#FFC72C",
-   padding: 5,
-   borderRadius: 5,
-   marginHorizontal: 5,
- },
- quantityButtonText: {
-   color: "#fff",
-   fontWeight: "bold",
- },
- quantity: {
-   fontSize: 16,
-   fontWeight: "bold",
- },
- removeButton: {
-   backgroundColor: "#E53935",
-   padding: 8,
-   borderRadius: 5,
- },
- removeButtonText: {
-   color: "#fff",
-   fontWeight: "bold",
-   fontSize: 12,
- },
- totalContainer: {
-   padding: 16,
-   backgroundColor: "#fff",
-   borderRadius: 8,
-   marginBottom: 16,
-   elevation: 3,
- },
- totalText: {
-   fontSize: 18,
-   fontWeight: "bold",
-   marginBottom: 10,
-   textAlign: "center",
- },
- checkoutButton: {
-   backgroundColor: "#FFC72C",
-   padding: 12,
-   borderRadius: 5,
-   alignItems: "center",
- },
- checkoutButtonText: {
-   color: "#fff",
-   fontWeight: "bold",
-   fontSize: 16,
- },
- emptyContainer: {
-   flex: 1,
-   justifyContent: "center",
-   alignItems: "center",
- },
- emptyText: {
-   fontSize: 18,
-   color: "#757575",
- },
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 16,
+  },
+  list: {
+    paddingVertical: 16,
+  },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    marginBottom: 16,
+    borderRadius: 8,
+    padding: 10,
+    elevation: 3,
+  },
+  image: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+  },
+  infoContainer: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  foodName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  price: {
+    fontSize: 14,
+    color: "#757575",
+    marginBottom: 8,
+  },
+  quantityContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  quantityButton: {
+    backgroundColor: "#FFC72C",
+    padding: 5,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  quantityButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  quantity: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  removeButton: {
+    backgroundColor: "#E53935",
+    padding: 8,
+    borderRadius: 5,
+  },
+  removeButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  totalContainer: {
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    marginBottom: 16,
+    elevation: 3,
+  },
+  totalText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  checkoutButton: {
+    backgroundColor: "#FFC72C",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  checkoutButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    fontSize: 18,
+    color: "#757575",
+  },
 });
 
 export default CartScreen;

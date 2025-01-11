@@ -36,35 +36,29 @@ mongoose
     console.log("Error connecting to MongoDB", err);
   });
 
-// Signup Controller
-app.post("/register", async (req, res, next) => {
-  const { username, email, password } = req.body;
-
-  if (
-    !username ||
-    !email ||
-    !password ||
-    username === "" ||
-    email === "" ||
-    password === ""
-  ) {
-    next(errorHandler(400, "All fields are required"));
-  }
-
-  // const hashedPassword = bcryptjs.hashSync(password, 10);
-  const newUser = new User({
-    username,
-    email,
-    password,
+  //register
+  app.post("/register", async (req, res, next) => {
+    const { username, email, password } = req.body;
+  
+    if (!username || !email || !password) {
+      return next(errorHandler(400, "All fields are required"));
+    }
+  
+    const hashedPassword = bcryptjs.hashSync(password, 10); // Hash password
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword, // Store hashed password
+    });
+  
+    try {
+      await newUser.save();
+      res.json("Signup successful");
+    } catch (error) {
+      next(error);
+    }
   });
-
-  try {
-    await newUser.save();
-    res.json("Signup successful");
-  } catch (error) {
-    next(error);
-  }
-});
+  
 
 const generateSecretKey = () => {
   const secretKey = crypto.randomBytes(32).toString("hex");
@@ -76,23 +70,32 @@ app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    //check if the user exists
+    // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
-    //check if the password is correct
-    if (user.password !== password) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
-    //generate a token
-    const token = jwt.sign({ userId: user._id }, secretKey);
 
-    res.status(200).json({ token });
+    // Verify the password
+    const isPasswordValid = bcryptjs.compareSync(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // Generate a token
+    const token = jwt.sign({ userId: user._id }, secretKey, { expiresIn: "1h" });
+
+    res.status(200).json({
+      token,
+      userId: user._id,
+      message: "Login successful",
+    });
   } catch (error) {
-    res.status(500).json({ message: "Login Failed" });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Login Failed", error: error.message });
   }
 });
+
 
 app.get("/getAllFoods", async (req, res) => {
   try {
