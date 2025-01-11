@@ -62,7 +62,7 @@ const PaynowScreen = () => {
   }, []);
 
   const generateTokenNumber = () => {
-    return Math.floor(Math.random() * 9000) + 1000;
+    return Math.floor(Math.random() * 900) + 100;
   };
 
   const validateInputs = () => {
@@ -96,15 +96,15 @@ const PaynowScreen = () => {
 
   const handlePayment = async () => {
     if (!validateInputs()) return;
-
+  
     setIsLoading(true);
     const tokenNumber = generateTokenNumber();
-
+  
     try {
       if (!userId) {
         throw new Error('User ID is missing. Please log in again.');
       }
-
+  
       const paymentData = {
         userId: userId,
         cartItems: orderData.items.map(item => ({
@@ -122,9 +122,9 @@ const PaynowScreen = () => {
         },
         tokenNumber: tokenNumber
       };
-
+  
       console.log('Sending payment data:', JSON.stringify(paymentData, null, 2));
-
+  
       const response = await fetch('http://192.168.195.160:9000/savepayment', {
         method: 'POST',
         headers: {
@@ -133,24 +133,15 @@ const PaynowScreen = () => {
         },
         body: JSON.stringify(paymentData)
       });
-
-      const rawResponse = await response.text();
-      console.log('Raw server response:', rawResponse);
-
-      let responseData;
-      try {
-        responseData = JSON.parse(rawResponse);
-      } catch (parseError) {
-        console.error('Failed to parse server response:', rawResponse);
-        throw new Error('Server returned invalid response format');
-      }
-
+  
       if (!response.ok) {
-        throw new Error(responseData.message || 'Payment failed');
+        throw new Error('Payment failed. Please try again.');
       }
-
+  
+      const responseData = await response.json();
+  
       navigation.navigate('PaymentReceipt', {
-        orderDetails: {
+        paymentDetails: {
           cartItems: orderData.items,
           totalPrice: orderData.totalAmount,
           tokenNumber: tokenNumber,
@@ -162,7 +153,6 @@ const PaynowScreen = () => {
           }
         }
       });
-
     } catch (error) {
       console.error('Payment Error:', error);
       Alert.alert(
@@ -173,7 +163,6 @@ const PaynowScreen = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>

@@ -11,15 +11,22 @@
   "description": "",
   "dependencies": {
     "body-parser": "^1.20.3",
+    "core-js": "^3.40.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "expo-sharing": "^13.0.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^2.5.2",
     "jwt-decode": "^4.0.0",
     "mongoose": "^8.9.3",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.9",
+    "react-native-fs": "^2.20.0",
+    "react-native-html-to-pdf": "^0.12.0",
+    "react-native-pdf-lib": "^1.0.0",
     "react-native-safe-area-context": "4.12.0",
-    "react-native-screens": "~4.4.0"
+    "react-native-screens": "~4.4.0",
+    "react-native-share": "^12.0.3"
   }
 }

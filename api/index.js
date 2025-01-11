@@ -193,3 +193,33 @@ app.post("/savepayment", async (req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is running on Port ${port}`);
 });
+
+
+
+// Get all payment details (Admin use)
+app.get( "/getAllPayments" , async (req, res, next) => {
+  try {
+    const payments = await Payment.find().populate("userId", "username email");
+    res.status(200).json(payments);
+  } catch (error) {
+    console.error(error);
+    next(errorHandler(500, { message: "Failed to retrieve payment details" }));
+  }
+});
+
+// Get payment details by token number (Admin use)
+app.get ("/getPaymentByTokenNumber", async (req, res, next) => {
+  const { tokenNumber } = req.params;
+
+  try {
+    const payment = await Payment.findOne({ tokenNumber }).populate("userId", "username email");
+    if (!payment) {
+      return next(errorHandler(404, { message: "No payment found with this token number" }));
+    }
+    res.status(200).json(payment);
+  } catch (error) {
+    console.error(error);
+    next(errorHandler(500, { message: "Failed to retrieve payment details" }));
+  }
+});
+

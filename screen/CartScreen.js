@@ -84,7 +84,7 @@ const CartScreen = () => {
       orderDate: new Date().toISOString(),
     };
 
-    navigation.navigate("Payment", { orderData: orderData });
+    navigation.navigate("payment", { orderData: orderData });
   };
 
   const renderItem = ({ item }) => (
