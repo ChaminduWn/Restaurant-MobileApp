@@ -135,30 +135,51 @@ app.get("/user/:userId", verifyUser, async (req, res, next) => {
 // Update user profile
 app.put("/user/:userId", verifyUser, async (req, res, next) => {
   try {
+    console.log("Update request received:", {
+      params: req.params,
+      body: req.body,
+      userId: req.userId,
+    });
+
+    // Authorization check
     if (req.userId !== req.params.userId) {
-      return next(errorHandler(403, 'Not authorized to update this profile'));
+      return res.status(403).json({ message: "Not authorized to update this profile" });
     }
 
+    // Extract allowed update fields
+    const allowedFields = ["name", "gender", "dateOfBirth", "address", "contactNumber", "profilePicture"];
+    const updateFields = Object.keys(req.body)
+      .filter((key) => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = req.body[key];
+        return obj;
+      }, {});
+
+    console.log("Fields to update:", updateFields);
+
+    if (Object.keys(updateFields).length === 0) {
+      return res.status(400).json({ message: "No valid fields provided for update" });
+    }
+
+    // Update user
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
-      {
-        $set: {
-          name: req.body.name,
-          gender: req.body.gender,
-          dateOfBirth: req.body.dateOfBirth,
-          address: req.body.address,
-          contactNumber: req.body.contactNumber,
-          profilePicture: req.body.profilePicture
-        }
-      },
-      { new: true }
-    ).select('-password');
+      { $set: updateFields },
+      { new: true, runValidators: true }
+    ).select("-password");
 
-    res.status(200).json(updatedUser);
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("User updated successfully:", updatedUser);
+    res.status(200).json({ message: "Updated successfully", user: updatedUser });
   } catch (error) {
+    console.error("Update error:", error);
     next(error);
   }
 });
+
 
   //signout
   app.post('/signout', (req, res, next) => {

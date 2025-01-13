@@ -14,6 +14,7 @@ import { Entypo } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import PaynowScreen from "../screen/PaynowScreen.js";
+import EditProfileScreen from "../screen/EditProfileScreen.js";
 
 
 const StackNavigator = () => {
@@ -23,12 +24,12 @@ const StackNavigator = () => {
         return (
           <Tab.Navigator>
             <Tab.Screen
-              name="Home"
+              name="Home - WN Restaurants"
               component={HomeScreen}
               options={{
                 tabBarLabel: "Home",
                 tabBarLabelStyle: { color: "#008E97" },
-                headerShown: false,
+                // headerShown: false,
                 tabBarIcon: ({ focused }) =>
                   focused ? (
                     <Entypo name="home" size={24} color="#008E97" />
@@ -59,7 +60,6 @@ const StackNavigator = () => {
               options={{
                 tabBarLabel: "Cart",
                 tabBarLabelStyle: { color: "#008E97" },
-                headerShown: false,
                 tabBarIcon: ({ focused }) =>
                   focused ? (
                     <AntDesign name="shoppingcart" size={24} color="#008E97" />
@@ -93,6 +93,7 @@ const StackNavigator = () => {
           options={{ headerShown: false }}
         />
          <Stack.Screen
+
           name="ShoppingCart"
           component={ShoppingCartScreen}
           options={{ headerShown: false }}
@@ -100,13 +101,14 @@ const StackNavigator = () => {
         <Stack.Screen
           name="payment"
           component={PaynowScreen}
-          options={{ headerShown: false }}
+          // options={{ headerShown: false }}
         />
         <Stack.Screen
           name="PaymentReceipt"
           component={PaymentScreen}
-          options={{ headerShown: false }}
+          // options={{ headerShown: false }}
         />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
        
 
 

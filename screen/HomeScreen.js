@@ -121,14 +121,14 @@ const HomeScreen = () => {
         if (storedUserId) {
           setUserId(storedUserId);
           dispatch(addToCart({ ...item, userId: storedUserId }));
-          navigation.navigate("ShoppingCart", { userId: storedUserId });
+          navigation.navigate("Cart", { userId: storedUserId });
         } else {
           Alert.alert("Error", "Please log in to proceed with purchase.");
           navigation.navigate("Login");
         }
       } else {
         dispatch(addToCart({ ...item, userId }));
-        navigation.navigate("ShoppingCart", { userId });
+        navigation.navigate("Cart", { userId });
       }
     } catch (error) {
       console.log("Error in buy now:", error);
@@ -186,9 +186,9 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topBar}>
+      {/* <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>WN Foods And Restaurants</Text>
-      </View>
+      </View> */}
 
       <View style={styles.searchContainer}>
         <TextInput
@@ -211,7 +211,7 @@ const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 30,
+    // marginTop: 30,
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   searchBar: {
     width: "90%",
     height: 40,
-    borderColor: "#1C1C1C",
+    borderColor: "#FFC72C",
     borderWidth: 1,
     borderRadius: 8,
     margin: 16,

@@ -142,7 +142,7 @@ import {
                 <InfoItem 
                   icon="user" 
                   label="Name" 
-                  value={userData.name || "Not set"} 
+                  value={userData.username} 
                 />
                 <InfoItem 
                   icon="envelope" 
