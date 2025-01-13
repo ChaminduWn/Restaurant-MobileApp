@@ -1,95 +1,67 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useRef } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, PermissionsAndroid, Platform } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { jsPDF } from 'jspdf';
+import { captureRef } from 'react-native-view-shot';
+import RNFS from 'react-native-fs';
 
 const PaymentScreen = () => {
   const route = useRoute();
   const { paymentDetails } = route.params;
+  const viewRef = useRef();
 
-  const generatePDF = () => {
+  const requestStoragePermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Needed',
+            message:
+              'This app needs access to your storage to save screenshots.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      } catch (err) {
+        console.warn(err);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const saveScreenshot = async () => {
     try {
-      if (!paymentDetails) {
-        Alert.alert('Error', 'Payment details are missing.');
+      const hasPermission = await requestStoragePermission();
+      if (!hasPermission) {
+        Alert.alert('Permission Denied', 'Cannot save the screenshot.');
         return;
       }
 
-      const doc = new jsPDF();
-
-      // Title
-      doc.setFontSize(20);
-      doc.setTextColor(40, 167, 69);
-      doc.text('Payment Receipt', 105, 20, { align: 'center' });
-
-      // Token Number and Total Price
-      doc.setFontSize(12);
-      doc.setTextColor(0);
-      doc.text(`Token Number: ${paymentDetails.tokenNumber || 'N/A'}`, 10, 40);
-      doc.text(`Total Price: LKR ${paymentDetails.totalPrice || 'N/A'}`, 10, 50);
-
-      // Order Details
-      doc.setFontSize(14);
-      doc.text('Order Details:', 10, 70);
-      paymentDetails.cartItems.forEach((item, index) => {
-        doc.setFontSize(12);
-        doc.text(
-          `${index + 1}. ${item.foodName} - Quantity: ${item.quantity}, Price: LKR ${item.price}`,
-          10,
-          80 + index * 10
-        );
+      const uri = await captureRef(viewRef, {
+        format: 'png',
+        quality: 0.8,
       });
 
-      // Payment Info
-      const paymentInfoStartY = 80 + paymentDetails.cartItems.length * 10 + 10;
-      doc.setFontSize(14);
-      doc.text('Payment Info:', 10, paymentInfoStartY);
-      doc.setFontSize(12);
-      doc.text(
-        `Card Type: ${paymentDetails.paymentInfo.cardType || 'N/A'}`,
-        10,
-        paymentInfoStartY + 10
-      );
-      doc.text(
-        `Name on Card: ${paymentDetails.paymentInfo.cardName || 'N/A'}`,
-        10,
-        paymentInfoStartY + 20
-      );
-      doc.text(
-        `Card Number: **** **** **** ${
-          paymentDetails.paymentInfo.cardNumber.slice(-4) || 'N/A'
-        }`,
-        10,
-        paymentInfoStartY + 30
-      );
-      doc.text(
-        `Payment Date: ${paymentDetails.paymentInfo.paymentDate || 'N/A'}`,
-        10,
-        paymentInfoStartY + 40
-      );
+      const fileName = `Payment_Receipt_${paymentDetails.tokenNumber || 'N/A'}.png`;
+      const path =
+        Platform.OS === 'android'
+          ? `${RNFS.DownloadDirectoryPath}/${fileName}`
+          : `${RNFS.DocumentDirectoryPath}/${fileName}`;
 
-      // Footer
-      doc.setFontSize(12);
-      doc.setTextColor(100);
-      doc.text(
-        'Thank you for your order!',
-        105,
-        paymentInfoStartY + 60,
-        { align: 'center' }
-      );
-
-      // Save the PDF
-      const fileName = `Payment_Receipt_${paymentDetails.tokenNumber || ''}.pdf`;
-      doc.save(fileName);
-
-      Alert.alert('Receipt Generated', `Receipt saved as ${fileName}`);
+      await RNFS.moveFile(uri, path);
+      Alert.alert('Screenshot Saved', `Saved to ${path}`);
     } catch (error) {
-      console.error('Error generating receipt:', error);
-      Alert.alert('Error', 'Could not generate the receipt. Please try again.');
+      console.error('Error saving screenshot:', error);
+      Alert.alert('Error', 'Could not save the screenshot. Please try again.');
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} ref={viewRef}>
       <Text style={styles.title}>Payment Receipt</Text>
       <Text style={styles.detail}>
         Token Number: {paymentDetails?.tokenNumber || 'N/A'}
@@ -117,8 +89,8 @@ const PaymentScreen = () => {
       <Text style={styles.detail}>
         Payment Date: {paymentDetails?.paymentInfo?.paymentDate || 'N/A'}
       </Text>
-      <TouchableOpacity style={styles.button} onPress={generatePDF}>
-        <Text style={styles.buttonText}>Download Receipt</Text>
+      <TouchableOpacity style={styles.button} onPress={saveScreenshot}>
+        <Text style={styles.buttonText}>Save Screenshot</Text>
       </TouchableOpacity>
     </View>
   );
