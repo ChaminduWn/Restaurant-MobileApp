@@ -7,8 +7,8 @@ import { errorHandler } from "./utils/error.js"; // Adjust the path as needed
 import User from "./models/user.js";
 import FoodItem from "./models/foodCategory.model.js";
 import Cart from "./models/cart.model.js";
-import PaymentShop from "./models/checkoutShop.model.js";
 import Payment from "./models/Payment.model.js";
+
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
@@ -95,6 +95,82 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ message: "Login Failed", error: error.message });
   }
 });
+
+// Middleware to verify token
+const verifyUser = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return next(errorHandler(401, 'Authentication required'));
+  }
+
+  try {
+    const decoded = jwt.verify(token, secretKey); // Use the same secretKey from your login route
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    return next(errorHandler(401, 'Invalid token'));
+  }
+};
+
+// Get user profile
+app.get("/user/:userId", verifyUser, async (req, res, next) => {
+  try {
+    // Check if the requested userId matches the token's userId
+    if (req.userId !== req.params.userId) {
+      return next(errorHandler(403, 'Not authorized to access this profile'));
+    }
+
+    const user = await User.findById(req.params.userId).select('-password');
+    if (!user) {
+      return next(errorHandler(404, 'User not found'));
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update user profile
+app.put("/user/:userId", verifyUser, async (req, res, next) => {
+  try {
+    if (req.userId !== req.params.userId) {
+      return next(errorHandler(403, 'Not authorized to update this profile'));
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.userId,
+      {
+        $set: {
+          name: req.body.name,
+          gender: req.body.gender,
+          dateOfBirth: req.body.dateOfBirth,
+          address: req.body.address,
+          contactNumber: req.body.contactNumber,
+          profilePicture: req.body.profilePicture
+        }
+      },
+      { new: true }
+    ).select('-password');
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+  //signout
+  app.post('/signout', (req, res, next) => {
+    try {
+      res
+        .clearCookie('access_token')
+        .status(200)
+        .json('User has been signed out');
+    } catch (error) {
+      next(error);
+    }
+  });
 
 
 app.get("/getAllFoods", async (req, res) => {
