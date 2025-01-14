@@ -44,7 +44,7 @@ import {
       try {
         console.log("Fetching profile for userId:", userId);
         
-        const response = await fetch(`http://192.168.118.160:9000/user/${userId}`, {
+        const response = await fetch(`http://192.168.195.160:9000/user/${userId}`, {
 
           method: "GET",
           headers: {

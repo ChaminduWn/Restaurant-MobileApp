@@ -58,7 +58,7 @@ const HomeScreen = () => {
 
   const fetchFoodItems = async () => {
     try {
-      const response = await fetch("http://192.168.118.160:9000/getAllFoods");
+      const response = await fetch("http://192.168.195.160:9000/getAllFoods");
       if (!response.ok) {
         throw new Error("Failed to fetch food items");
       }
@@ -166,7 +166,7 @@ const HomeScreen = () => {
             <Text style={styles.buttonText}>Add to Cart</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.button}
+            style={styles.button1}
             onPress={() => handleBuyNow(item)}
           >
             <Text style={styles.buttonText}>Buy Now</Text>
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   searchContainer: {
-    backgroundColor: "#FFC72C",
+    backgroundColor: "#671B61",
     height: 60,
     flexDirection: "row",
     alignItems: "center",
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   searchBar: {
     width: "90%",
     height: 40,
-    borderColor: "#FFC72C",
+    borderColor: "#671B61",
     borderWidth: 1,
     borderRadius: 8,
     margin: 16,
@@ -287,9 +287,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   price: {
-    fontSize: 16,
+    fontSize: 19,
     fontWeight: "bold",
-    color: "#6200EE",
+    color: "#FFB300",
   },
   buttonContainer: {
     flex: 1,
@@ -297,10 +297,17 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   button: {
-    backgroundColor: "#FFC72C",
+    backgroundColor: "#820c7e",
     padding: 8,
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 5,
+    width: 80,
+  },
+  button1: {
+    backgroundColor: "#820c7e",
+    padding: 8,
+    borderRadius: 5,
+    marginBottom: 5,
     width: 80,
   },
   buttonText: {
