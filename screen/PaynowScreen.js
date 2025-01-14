@@ -1,18 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { UserType } from "../UserContext";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwt_decode from 'jwt-decode';
+import { Picker } from '@react-native-picker/picker';
 
 const PaynowScreen = () => {
   const navigation = useNavigation();
@@ -35,12 +36,10 @@ const PaynowScreen = () => {
         if (!token) {
           throw new Error('No auth token found');
         }
-        
         const decodedToken = jwt_decode(token);
         if (!decodedToken.userId) {
           throw new Error('Invalid token format');
         }
-        
         setUserId(decodedToken.userId);
         console.log('UserId set:', decodedToken.userId);
       } catch (error) {
@@ -51,8 +50,8 @@ const PaynowScreen = () => {
           [
             {
               text: 'OK',
-              onPress: () => navigation.navigate('login')
-            }
+              onPress: () => navigation.navigate('login'),
+            },
           ]
         );
       }
@@ -96,21 +95,21 @@ const PaynowScreen = () => {
 
   const handlePayment = async () => {
     if (!validateInputs()) return;
-  
+
     setIsLoading(true);
     const tokenNumber = generateTokenNumber();
-  
+
     try {
       if (!userId) {
         throw new Error('User ID is missing. Please log in again.');
       }
-  
+
       const paymentData = {
         userId: userId,
         cartItems: orderData.items.map(item => ({
           foodName: item.foodName,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
         })),
         totalPrice: orderData.totalAmount,
         paymentInfo: {
@@ -118,28 +117,28 @@ const PaynowScreen = () => {
           cardName: nameOnCard,
           cardNumber: cardNumber.slice(-4),
           expirationDate: `${expiryMonth}/${expiryYear}`,
-          securityCode: cvv
+          securityCode: cvv,
         },
-        tokenNumber: tokenNumber
+        tokenNumber: tokenNumber,
       };
-  
+
       console.log('Sending payment data:', JSON.stringify(paymentData, null, 2));
-  
+
       const response = await fetch('http://192.168.195.160:9000/savepayment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
         },
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify(paymentData),
       });
-  
+
       if (!response.ok) {
         throw new Error('Payment failed. Please try again.');
       }
-  
+
       const responseData = await response.json();
-  
+
       navigation.navigate('PaymentReceipt', {
         paymentDetails: {
           cartItems: orderData.items,
@@ -149,9 +148,9 @@ const PaynowScreen = () => {
             cardType,
             nameOnCard,
             cardNumber: cardNumber.slice(-4),
-            paymentDate: new Date().toISOString()
-          }
-        }
+            paymentDate: new Date().toISOString(),
+          },
+        },
       });
     } catch (error) {
       console.error('Payment Error:', error);
@@ -163,6 +162,7 @@ const PaynowScreen = () => {
       setIsLoading(false);
     }
   };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.card}>
@@ -171,12 +171,17 @@ const PaynowScreen = () => {
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Card Type</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g., Visa, MasterCard"
-            value={cardType}
-            onChangeText={setCardType}
-          />
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={cardType}
+              onValueChange={(itemValue) => setCardType(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Select Card Type" value="" />
+              <Picker.Item label="Visa" value="Visa" />
+              <Picker.Item label="MasterCard" value="MasterCard" />
+            </Picker>
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
@@ -241,7 +246,7 @@ const PaynowScreen = () => {
           />
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.payButton}
           onPress={handlePayment}
           disabled={isLoading}
@@ -302,6 +307,16 @@ const styles = StyleSheet.create({
   },
   halfInput: {
     width: '48%',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 2,
+    backgroundColor: '#fff',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
   },
   payButton: {
     backgroundColor: '#FFC72C',

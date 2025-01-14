@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   searchContainer: {
-    backgroundColor: "#671B61",
+    backgroundColor: "#893271",
     height: 60,
     flexDirection: "row",
     alignItems: "center",
@@ -249,12 +249,13 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#FAFAFA",
     borderRadius: 8,
     marginBottom: 16,
     overflow: "hidden",
     elevation: 3,
     padding: 10,
+    bordercolor: "#E0E0E0",
   },
   horizontalContainer: {
     flexDirection: "row",
@@ -275,6 +276,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 4,
+    color: "#212121",
   },
   category: {
     fontSize: 14,
@@ -289,7 +291,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 19,
     fontWeight: "bold",
-    color: "#FEBE10",
+    color: "#007BA7",
   },
   buttonContainer: {
     flex: 1,
@@ -297,14 +299,14 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   button: {
-    backgroundColor: "#B53389",
+    backgroundColor: "#F2C75B",
     padding: 8,
     borderRadius: 5,
     marginBottom: 5,
     width: 80,
   },
   button1: {
-    backgroundColor: "#FEBE10",
+    backgroundColor: "#893271",
     padding: 8,
     borderRadius: 5,
     marginBottom: 5,
