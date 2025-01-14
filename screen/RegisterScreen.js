@@ -64,12 +64,12 @@ import {
       <SafeAreaView
         style={{ flex: 1, backgroundColor: "#3F3F4E", alignItems: "center",marginTop:50  }}
       >
-        <View>
+        {/* <View>
            <Image
             style={{ width: 200, height: 60 }} // Adjusted to half the original size
             source={require("../assets/images/Wn Resturants logo.png")}
           />
-        </View>
+        </View> */}
   
         <KeyboardAvoidingView>
           <View style={{ alignItems: "center" }}>

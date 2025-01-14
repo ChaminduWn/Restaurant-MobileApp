@@ -15,6 +15,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import PaynowScreen from "../screen/PaynowScreen.js";
 import EditProfileScreen from "../screen/EditProfileScreen.js";
+import SplashScreen from "../screen/SplashScreen.js";
 
 
 const StackNavigator = () => {
@@ -75,6 +76,12 @@ const StackNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+      <Stack.Screen
+          name="Splash"
+          component={SplashScreen}
+          options={{ headerShown: false }}
+        />
+
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -83,7 +90,7 @@ const StackNavigator = () => {
         <Stack.Screen
           name="Register"
           component={RegisterScreen}
-          options={{ headerShown: false }}
+          // options={{ headerShown: false }}
         />
                    <Stack.Screen name="Main" component={BottomTabs} options={{ headerShown: false }}/> 
 
