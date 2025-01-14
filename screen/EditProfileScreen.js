@@ -276,7 +276,7 @@ import {
       color: "#000",
     },
     saveButton: {
-      backgroundColor: "#FEBE10",
+      backgroundColor: "#820c7e",
       marginHorizontal: 20,
       padding: 15,
       borderRadius: 10,

@@ -156,7 +156,7 @@ const HomeScreen = () => {
           <Text style={styles.foodName}>{item.foodName}</Text>
           <Text style={styles.category}>{item.category}</Text>
           <Text style={styles.description}>{item.description}</Text>
-          <Text style={styles.price}>LKR {item.price}</Text>
+          <Text style={styles.price}>Rs. {item.price}/= </Text>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -262,8 +262,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 110,
+    height: 110,
     borderRadius: 8,
   },
   infoContainer: {
@@ -284,12 +284,12 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     color: "#616161",
-    marginBottom: 8,
+    marginBottom: 2,
   },
   price: {
     fontSize: 19,
     fontWeight: "bold",
-    color: "#FFB300",
+    color: "#FEBE10",
   },
   buttonContainer: {
     flex: 1,
@@ -297,14 +297,14 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   button: {
-    backgroundColor: "#820c7e",
+    backgroundColor: "#B53389",
     padding: 8,
     borderRadius: 5,
     marginBottom: 5,
     width: 80,
   },
   button1: {
-    backgroundColor: "#820c7e",
+    backgroundColor: "#FEBE10",
     padding: 8,
     borderRadius: 5,
     marginBottom: 5,

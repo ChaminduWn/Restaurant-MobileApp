@@ -302,7 +302,7 @@ import {
       marginTop: 2,
     },
     editButton: {
-      backgroundColor: "#FEBE10",
+      backgroundColor: "#820c7e",
       marginHorizontal: 20,
       padding: 15,
       borderRadius: 10,
