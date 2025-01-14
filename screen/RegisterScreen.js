@@ -62,30 +62,27 @@ import {
     };
     return (
       <SafeAreaView
-        style={{ flex: 1, backgroundColor: "#3F3F4E", alignItems: "center",marginTop:50  }}
+        style={{ flex: 1, backgroundColor: "#fff", alignItems: "center"  }}
       >
-        {/* <View>
-           <Image
-            style={{ width: 200, height: 60 }} // Adjusted to half the original size
-            source={require("../assets/images/Wn Resturants logo.png")}
-          />
-        </View> */}
+
+      
+       
   
         <KeyboardAvoidingView>
           <View style={{ alignItems: "center" }}>
             <Text
               style={{
-                fontSize: 17,
+                fontSize: 20,
+                marginTop: 50,
                 fontWeight: "bold",
-                marginTop: 60,
-                color: "#FFFFFF",
+                color: "#671B61",
               }}
             >
               Register to your Account
             </Text>
           </View>
   
-          <View style={{ marginTop: 70 }}>
+          <View style={{ marginTop: 40 }}>
             <View
               style={{
                 flexDirection: "row",
@@ -103,12 +100,13 @@ import {
                 color="gray"
                 style={{ marginLeft: 8 }}
               /> */}
+              
 
 <MaterialIcons
                 style={{ marginLeft: 8 }}
                 name="email"
                 size={24}
-                color="gray"
+                color="#671B61"
               />
               <TextInput
                 value={username}
@@ -138,7 +136,7 @@ import {
                 style={{ marginLeft: 8 }}
                 name="email"
                 size={24}
-                color="gray"
+                color="#671B61"
               />
   
               <TextInput
@@ -170,7 +168,7 @@ import {
               <AntDesign
                 name="lock1"
                 size={24}
-                color="gray"
+                color="#671B61"
                 style={{ marginLeft: 8 }}
               />
   
@@ -197,9 +195,9 @@ import {
               justifyContent: "space-between",
             }}
           >
-            <Text>Keep me logged in</Text>
+            <Text style={{ color: "#gray"}}>Keep me logged in</Text>
   
-            <Text style={{ color: "#007FFF", fontWeight: "500" }}>
+            <Text style={{ color: "#BD2B4B", fontWeight: "500" }}>
               Forgot Password
             </Text>
           </View>
@@ -210,7 +208,8 @@ import {
             onPress={handleRegister}
             style={{
               width: 200,
-              backgroundColor: "#FEBE10",
+              backgroundColor: "#671B61",
+              // backgroundColor: "#893271",
               borderRadius: 6,
               marginLeft: "auto",
               marginRight: "auto",
@@ -233,7 +232,7 @@ import {
             onPress={() => navigation.goBack()}
             style={{ marginTop: 15 }}
           >
-            <Text style={{ textAlign: "center", color: "gray", fontSize: 16 }}>
+            <Text style={{ textAlign: "center", color: "#CF7793", fontSize: 16 }}>
               Already have an account? Sign In
             </Text>
           </Pressable>
