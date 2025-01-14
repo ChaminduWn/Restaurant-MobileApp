@@ -42,9 +42,9 @@ const LoginScreen = () => {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-  
+
     const user = { email, password };
-  
+
     fetch("http://192.168.118.160:9000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -56,19 +56,22 @@ const LoginScreen = () => {
           Alert.alert("Login Error", data.message);
           return;
         }
-  
+
         if (data.token) {
           AsyncStorage.setItem("authToken", data.token)
             .then(() => {
               console.log("Token saved successfully");
               const decodedToken = jwt_decode(data.token); // Decode the token
               console.log("Decoded token:", decodedToken);
-  
+
               if (decodedToken.userId) {
                 setUserId(decodedToken.userId); // Update the context
                 navigation.replace("Main");
               } else {
-                Alert.alert("Login Error", "Unable to retrieve user information.");
+                Alert.alert(
+                  "Login Error",
+                  "Unable to retrieve user information."
+                );
               }
             })
             .catch((error) => {
@@ -83,18 +86,10 @@ const LoginScreen = () => {
         Alert.alert("Login Error", "Something went wrong. Please try again.");
       });
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        <Image
-          style={styles.logo}
-          source={{
-            uri: "https://assets.stickpng.com/thumbs/6160562276000b00045a7d97.png",
-          }}
-        />
-      </View>
+      
 
       <KeyboardAvoidingView>
         <View style={styles.centeredText}>
@@ -103,7 +98,12 @@ const LoginScreen = () => {
 
         <View style={styles.inputWrapper}>
           <View style={styles.inputContainer}>
-            <MaterialIcons name="email" size={24} color="gray" style={styles.icon} />
+            <MaterialIcons
+              name="email"
+              size={24}
+              color="#671B61"
+              style={styles.icon}
+            />
             <TextInput
               value={email}
               onChangeText={setEmail}
@@ -113,7 +113,12 @@ const LoginScreen = () => {
           </View>
 
           <View style={styles.inputContainer}>
-            <AntDesign name="lock1" size={24} color="gray" style={styles.icon} />
+            <AntDesign
+              name="lock1"
+              size={24}
+              color="#671B61"
+              style={styles.icon}
+            />
             <TextInput
               value={password}
               onChangeText={setPassword}
@@ -133,8 +138,13 @@ const LoginScreen = () => {
           <Text style={styles.loginButtonText}>Login</Text>
         </Pressable>
 
-        <Pressable onPress={() => navigation.navigate("Register")} style={styles.registerLink}>
-          <Text style={styles.registerText}>Don't have an account? Sign Up</Text>
+        <Pressable
+          onPress={() => navigation.navigate("Register")}
+          style={styles.registerLink}
+        >
+          <Text style={styles.registerText}>
+            Don't have an account? Sign Up
+          </Text>
         </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -148,7 +158,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
     alignItems: "center",
-    marginTop: 50,
   },
   logo: {
     width: 150,
@@ -158,10 +167,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerText: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: "bold",
     marginTop: 12,
-    color: "#041E42",
+    color: "#671B61",
+    marginTop: 50,
+
   },
   inputWrapper: {
     marginTop: 70,
@@ -190,16 +201,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   linkText: {
-    color: "#007FFF",
+    color: "#BD2B4B",
     fontWeight: "500",
   },
   loginButton: {
     marginTop: 80,
     width: 200,
-    backgroundColor: "#FEBE10",
+    backgroundColor: "#671B61",
     borderRadius: 6,
     padding: 15,
-    
+    marginLeft: "auto",
+    marginRight: "auto",
   },
   loginButtonText: {
     textAlign: "center",
@@ -212,7 +224,7 @@ const styles = StyleSheet.create({
   },
   registerText: {
     textAlign: "center",
-    color: "gray",
+    color: "#CF7793",
     fontSize: 16,
   },
 });

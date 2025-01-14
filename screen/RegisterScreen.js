@@ -195,7 +195,7 @@ import {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ color: "#gray"}}>Keep me logged in</Text>
+            <Text style={{ color: "gray"}}>Keep me logged in</Text>
   
             <Text style={{ color: "#BD2B4B", fontWeight: "500" }}>
               Forgot Password
