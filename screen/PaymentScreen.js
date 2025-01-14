@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert, PermissionsAndroid, Pl
 import { useRoute } from '@react-navigation/native';
 import { jsPDF } from 'jspdf';
 import { captureRef } from 'react-native-view-shot';
-import RNFS from 'react-native-fs';
+// import RNFS from 'react-native-fs';
 
 const PaymentScreen = () => {
   const route = useRoute();

@@ -45,7 +45,7 @@ const LoginScreen = () => {
   
     const user = { email, password };
   
-    fetch("http://192.168.195.160:9000/login", {
+    fetch("http://192.168.118.160:9000/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user),

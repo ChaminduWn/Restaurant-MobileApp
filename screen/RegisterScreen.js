@@ -28,7 +28,7 @@ import {
       };
   
       // send a POST  request to the backend API to register the user
-      fetch("http://192.168.195.160:9000/register", {
+      fetch("http://192.168.195.118:9000/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

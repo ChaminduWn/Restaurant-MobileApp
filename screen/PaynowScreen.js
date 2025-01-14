@@ -125,7 +125,7 @@ const PaynowScreen = () => {
   
       console.log('Sending payment data:', JSON.stringify(paymentData, null, 2));
   
-      const response = await fetch('http://192.168.195.160:9000/savepayment', {
+      const response = await fetch('http://192.168.195.118:9000/savepayment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -58,7 +58,7 @@ const HomeScreen = () => {
 
   const fetchFoodItems = async () => {
     try {
-      const response = await fetch("http://192.168.195.160:9000/getAllFoods");
+      const response = await fetch("http://192.168.118.160:9000/getAllFoods");
       if (!response.ok) {
         throw new Error("Failed to fetch food items");
       }
