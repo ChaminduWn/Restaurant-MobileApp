@@ -19,8 +19,8 @@ The app includes the following screens:
 2. **Home Screen**: Displays available food items fetched from the backend.
 3. **Login Screen**: Allows users to log in to their accounts.
 4. **Register Screen**: Enables new users to sign up.
-5. **Cart Screen**: Displays items added to the shopping cart.
-6. **Shopping Cart Screen**: Enables users to review and adjust cart items.
+5. **Cart Screen**: Displays items added to the shopping cart usering "add to cart" button.
+6. **Shopping Cart Screen**: Displays items added to the shopping cart usering "buy now" button.
 7. **PayNow Screen**: Handles payment processing.
 8. **Payment Screen**: Displays payment confirmation and details.
 9. **Profile Screen**: Shows user profile details.
@@ -84,8 +84,4 @@ Before running this app, ensure you have the following installed:
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
-
-## Contact
-
-For any questions or support, please contact [your-email@example.com].
 
