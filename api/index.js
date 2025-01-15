@@ -23,7 +23,9 @@ app.use(bodyParser.json());
 // MongoDB Connection
 mongoose
   .connect(
-    "mongodb+srv://chaminduwn:180517Wn@food-resturant.rk5sl.mongodb.net/?retryWrites=true&w=majority&appName=food-resturant",
+  "mongodb+srv://chaminduwn:180517Wn@resturant.yyfn6.mongodb.net/?retryWrites=true&w=majority&appName=Resturant",
+
+    // "mongodb+srv://chaminduwn:180517Wn@food-resturant.rk5sl.mongodb.net/?retryWrites=true&w=majority&appName=food-resturant",
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
