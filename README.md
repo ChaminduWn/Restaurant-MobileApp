@@ -2,7 +2,7 @@
 
 This repository contains the source code for the **Restaurant Management Mobile App**, a React Native application developed using **Expo Go**. This mobile app serves as the user-facing counterpart to the **Restaurant Management Web App** (https://github.com/ChaminduWn/Resturant) and is designed to work seamlessly with the same backend and database.
 
-![Minimalist Gray Old Church Photo Brochure](https://github.com/user-attachments/assets/c3136f1a-df18-4583-ac23-66775b2b6ae8)
+![Minimalist Gray Old Church Photo Brochure (1)](https://github.com/user-attachments/assets/0afbba1b-edbc-4ec0-b9e9-f26fe7ea8ce2)
 
 
 ## Key Features
