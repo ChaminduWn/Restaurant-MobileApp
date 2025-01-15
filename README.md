@@ -1,6 +1,18 @@
 # Restaurant Management Mobile App - React Native
 
-This repository contains the source code for the **Restaurant Management Mobile App**, a React Native application developed using **Expo Go**. This mobile app serves as the user-facing counterpart to the **Restaurant Management Web App** and is designed to work seamlessly with the same backend and database.
+This repository contains the source code for the **Restaurant Management Mobile App**, a React Native application developed using **Expo Go**. This mobile app serves as the user-facing counterpart to the **Restaurant Management Web App** (https://github.com/ChaminduWn/Resturant) and is designed to work seamlessly with the same backend and database.
+
+
+![spalsh](https://github.com/user-attachments/assets/9fe2998d-8f0a-4b59-b5fe-5e8e10c4a0ab)
+![home](https://github.com/user-attachments/assets/edaf094c-cc28-409c-8f56-e9d397d6a395)
+![login](https://github.com/user-attachments/assets/4181daa2-4875-4c8a-b6dc-6f377b95891c)
+![register](https://github.com/user-attachments/assets/850f5746-b181-42a3-a5b1-348ab4887136)
+![cart](https://github.com/user-attachments/assets/b70af5c7-f0f9-4c31-affd-88b3105a21de)
+![paynow](https://github.com/user-attachments/assets/086456df-cd2f-4e4b-802d-e6b0da81b9fe)
+![payreceipt](https://github.com/user-attachments/assets/75400c33-7bd2-48ee-90da-3b9213eb4da0)
+![profile (1)](https://github.com/user-attachments/assets/98c21cae-a136-41bb-bbfb-1cf6cfa2d482)
+![profile (2)](https://github.com/user-attachments/assets/e157e48d-1a44-4b51-b9d8-566a6bd1cfaa)
+
 
 ## Key Features
 
