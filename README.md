@@ -38,27 +38,6 @@ Before running this app, ensure you have the following installed:
 - Expo CLI
 - MongoDB (backend and database must be running)
 
-## Setup Instructions
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-username/restaurant-management-mobile-app.git
-   cd restaurant-management-mobile-app
-   ```
-
-2. **Install Dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Configure Backend**:
-   Ensure your backend server (shared with the web app) is running and configured. Update the backend URL in the app's environment configuration file.
-
-4. **Start the App**:
-   ```bash
-   expo start
-   ```
-   Use the Expo Go app on your Android device to scan the QR code and run the app.
 
 ## App Workflow
 
